@@ -5,9 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#f6f6f4" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0f0f10" media="(prefers-color-scheme: dark)">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Lönekollen">
 <title>Lönekollen</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -385,7 +382,7 @@ let vm = (() => { const d = new Date(); return {y:d.getFullYear(), m:d.getMonth(
 /* ===== Hjälpare ===== */
 const $ = id => document.getElementById(id);
 const MAN = ["januari","februari","mars","april","maj","juni","juli","augusti","september","oktober","november","december"];
-const kr = n => Math.round(n).toLocaleString("sv-SE") + " kr";
+const kr = n => Math.round(n).toLocaleString("sv-SE") + " kr";
 const num = s => { const v = parseFloat(String(s).replace(/\s/g,"").replace(",", ".")); return isFinite(v) ? v : 0; };
 const hm = h => { const t = Math.round(h*60), H = Math.floor(t/60), M = t%60; return M ? `${H} h ${M} min` : `${H} h`; };
 const klock = t => new Date(t).toLocaleTimeString("sv-SE", {hour:"2-digit", minute:"2-digit"});
@@ -518,6 +515,18 @@ function update(){
     `<dt class="s">Skatt</dt><dd class="s">${kr(sk)}</dd>`;
 }
 
+const RADER = [
+  "Varje minut är en krona närmare helgen",
+  "Tänk på lönen, inte på chefen",
+  "Ett pass närmare ledigheten",
+  "Låtsas vara upptagen – det är också betalt",
+  "Jobbet suger. Pengarna gör det inte",
+  "Någon måste ju betala för pizzan på fredag",
+  "Snart är det fredag (någon gång)",
+  "Räkna kronor, inte timmar",
+  "Semesterkassan tackar på förhand"
+];
+const RAD = RADER[Math.floor(Math.random()*RADER.length)];
 function obNu(jobb){
   const k = klass(jobb, Date.now());
   if (!k) return null;
@@ -535,7 +544,7 @@ function tick(){
   if (!r){
     const nu = obNu(S.jobb);
     $("heroBody").innerHTML = `<div class="k">${JOBB[S.jobb].namn}</div>
-      <div class="idle">Redo för ett pass?</div>
+      <div class="idle">${RAD}</div>
       <p class="hint">Tryck när du börjar. Tiden räknas även när telefonen är låst eller appen stängd.</p>
       ${nu ? `<p style="margin:-6px 0 18px"><span class="chip">${nu}</span></p>` : ""}`;
     return;
