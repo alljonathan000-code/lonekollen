@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f6f6f4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f0f10" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Lönekollen">
+<title>Lönekollen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f6f4; --card:#ffffff; --ink:#18181b; --muted:#71717a; --faint:#a1a1aa; --line:#ececea;
+  --accent:#5b4ee8; --go:#16a34a; --stop:#e11d48; --money:#0f9f6e;
+  --g1:#6a5af0; --g2:#4a2fb8; --r1:#109e70; --r2:#0b6f7f;
+  --f:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#0f0f10; --card:#18181b; --ink:#f4f4f5; --muted:#a1a1aa; --faint:#71717a; --line:#27272a; --accent:#a5a0ff; --go:#22c55e; --stop:#fb7185; --money:#34d399; color-scheme:dark; }
+}
+:root[data-t="ica"]{--g1:#e3000f;--g2:#a3000b;--r1:#c4000d;--r2:#740007;--accent:#e3000f;--glow:rgba(227,0,15,.45);--glowOn:rgba(160,0,10,.5);--chip:#fff;--chipInk:#b8000c}
+:root[data-t="polis"]{--g1:#2152ad;--g2:#0e2a5c;--r1:#0f2d63;--r2:#06183a;--accent:#2152ad;--glow:rgba(33,82,173,.5);--glowOn:rgba(6,24,58,.55);--chip:#f2b705;--chipInk:#231a00}
+@media (prefers-color-scheme: dark){ :root[data-t="ica"]{--accent:#ff5c66} :root[data-t="polis"]{--accent:#82a8ff} }
+html{background:var(--g2);min-height:100%}
+body{background:linear-gradient(170deg,var(--g1) 0%,var(--g2) 70%);min-height:100vh;min-height:100dvh;transition:background .4s}
+:root.on body{background:linear-gradient(170deg,var(--r1) 0%,var(--r2) 70%)}
+:root.on{background:var(--r2)}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{color:var(--ink);font:400 16px/1.5 var(--f);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.wrap{max-width:480px;margin:0 auto;padding:calc(16px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) calc(40px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left))}
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.logo{font-weight:800;letter-spacing:-.01em;color:#fff;display:flex;align-items:center;gap:8px;font-size:1.05rem}
+.logo svg{width:30px;height:30px;flex:none;display:block}
+.top .ghost,.head .ghost{color:rgba(255,255,255,.85)}
+.top .ghost:hover,.head .ghost:hover{background:rgba(255,255,255,.15);color:#fff}
+.ghost{border:0;background:transparent;cursor:pointer;color:var(--muted);padding:10px 12px;min-height:44px;min-width:44px;border-radius:10px;font-weight:600;font-size:.9rem}
+.ghost:hover{background:var(--line);color:var(--ink)}
+.card{background:var(--card);border-radius:20px;padding:22px}
+.card+.card,.card+section,section+section{margin-top:14px}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+
+/* Översikt */
+.month{display:flex;align-items:center;justify-content:space-between;margin:-6px -8px 10px}
+.month b{font-weight:700;font-size:.95rem}
+
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.stats div{background:var(--bg);border-radius:14px;padding:10px 12px}
+.stats span{display:block;font-size:.75rem;color:var(--muted);font-weight:600}
+.stats b{font-size:1rem;font-variant-numeric:tabular-nums;white-space:nowrap}
+.stats .ob b{color:var(--accent)}
+.lbl{color:var(--muted);font-size:.85rem;font-weight:500}
+.big{font-size:2.6rem;font-weight:800;color:var(--money);letter-spacing:-.03em;line-height:1.05;font-variant-numeric:tabular-nums;margin:2px 0 6px}
+.big small{font-size:1.2rem;font-weight:500;color:var(--muted);margin-left:4px;letter-spacing:0}
+.meta{display:flex;gap:16px;color:var(--muted);font-size:.9rem;font-variant-numeric:tabular-nums}
+.meta b{color:var(--ink);font-weight:600}
+.more{margin-top:14px;border-top:1px solid var(--line);padding-top:10px}
+.more summary{list-style:none;cursor:pointer;color:var(--muted);font-size:.85rem;font-weight:600}
+.more summary::-webkit-details-marker{display:none}
+.more summary::after{content:" ↓"}
+.more[open] summary::after{content:" ↑"}
+dl{display:grid;grid-template-columns:1fr auto;gap:6px 12px;margin:12px 0 0;font-size:.9rem;font-variant-numeric:tabular-nums}
+dt{color:var(--muted)} dd{margin:0;text-align:right}
+dt.s,dd.s{color:var(--ink);font-weight:600;border-top:1px solid var(--line);padding-top:6px}
+dd.m{color:var(--go)}
+.gap{grid-column:1/-1;height:6px}
+
+/* Hero: passet */
+.hero{border-radius:24px;padding:22px;color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-60px;top:-60px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.08);pointer-events:none}
+.hero .k{font-size:.85rem;font-weight:600;opacity:.85;display:flex;align-items:center;gap:6px}
+.hero .amt{font-size:3.4rem;font-weight:800;letter-spacing:-.03em;line-height:1.05;margin:4px 0 2px;font-variant-numeric:tabular-nums}
+.hero .amt small{font-size:1.3rem;font-weight:600;opacity:.8;margin-left:4px;letter-spacing:0}
+.hero .net2{font-size:1rem;font-weight:600;opacity:.92;font-variant-numeric:tabular-nums}
+.hero .row2{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:16px 0 18px;font-variant-numeric:tabular-nums}
+.hero .tid{font-size:1.5rem;font-weight:700}
+.hero .since{font-size:.85rem;opacity:.85;white-space:nowrap}
+.hero .row2>div{min-width:0}
+.chip{display:inline-block;text-align:center;max-width:55%;white-space:normal;line-height:1.3;background:var(--chip,rgba(255,255,255,.2));color:var(--chipInk,#fff);border-radius:14px;padding:6px 12px;font-size:.82rem;font-weight:700}
+.hero .idle{font-size:1.6rem;font-weight:800;letter-spacing:-.02em;line-height:1.2;margin:4px 0 6px}
+.hero .hint{font-size:.9rem;opacity:.88;margin:0 0 18px}
+.go{width:100%;border:0;border-radius:99px;padding:18px;font-weight:800;font-size:1.1rem;cursor:pointer;background:#fff;color:var(--g1);position:relative;z-index:1}
+.hero.on .go{color:var(--r2)}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#fff;animation:p 1.4s infinite}
+@keyframes p{50%{opacity:.25}}
+
+/* Pass */
+.head{display:flex;align-items:center;justify-content:space-between;padding:0 4px;margin:22px 0 6px}
+.head h2{font-size:.85rem;font-weight:600;color:rgba(255,255,255,.8);margin:0;text-transform:uppercase;letter-spacing:.06em}
+.list{background:var(--card);border-radius:20px;padding:4px 18px}
+.row{display:grid;grid-template-columns:4px 1fr auto auto;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+.row:first-child{border-top:0}
+.row small{display:block;color:var(--muted);font-size:.82rem}
+.row .h{text-align:right;font-weight:700;font-variant-numeric:tabular-nums;color:var(--money)}
+.row .h small{font-weight:500}
+.bar{align-self:stretch;border-radius:4px;background:linear-gradient(var(--g1),var(--g2))}
+.bar.live{background:linear-gradient(var(--r1),var(--r2))}
+.x{border:0;background:transparent;color:var(--faint);cursor:pointer;font-size:1.2rem;width:40px;height:40px;border-radius:10px}
+.x[data-arm]{width:auto;padding:0 8px;font-size:.8rem;font-weight:700;color:var(--stop)}
+.empty{color:var(--muted);font-size:.9rem;padding:14px 0;margin:0}
+.add{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:8px;padding:12px 0 14px}
+.add input{width:100%;min-width:0;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:500 16px var(--f);padding:11px 8px;min-height:44px}
+.add .btns{grid-column:1/-1;display:flex;gap:8px;justify-content:flex-end}
+.pri{border:0;border-radius:99px;background:var(--accent);color:#fff;font-weight:600;padding:9px 18px;cursor:pointer}
+
+/* Inställningar */
+.set h3{font-size:.8rem;font-weight:600;color:var(--muted);margin:18px 0 8px;text-transform:uppercase;letter-spacing:.06em}
+.set h3:first-child{margin-top:0}
+.seg{display:flex;gap:4px;background:var(--bg);padding:4px;border-radius:12px}
+.seg button{flex:1;border:0;background:transparent;color:var(--muted);font-weight:600;font-size:.92rem;padding:9px 6px;border-radius:9px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--card);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.field{display:flex;align-items:center;border:1px solid var(--line);border-radius:12px;padding:0 14px;margin-top:8px;background:var(--bg)}
+.field input,.field select{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font:600 1.05rem var(--f);padding:12px 0;outline:none;font-variant-numeric:tabular-nums}
+.field em{font-style:normal;color:var(--muted);font-size:.9rem}
+.sw{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px;cursor:pointer;font-weight:500}
+.sw input{position:absolute;opacity:0;width:1px;height:1px}
+.sw span{flex:none;width:44px;height:26px;border-radius:99px;background:var(--line);position:relative;transition:background .15s}
+.sw span::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .15s;box-shadow:0 1px 2px rgba(0,0,0,.25)}
+.sw input:checked+span{background:var(--accent)}
+.sw input:checked+span::after{transform:translateX(18px)}
+.sw input:focus-visible+span{outline:2px solid var(--ink);outline-offset:2px}
+.note{color:var(--muted);font-size:.82rem;margin:8px 0 0}
+
+footer{color:rgba(255,255,255,.6);font-size:.78rem;margin:28px 4px 0}
+footer p{margin:0 0 6px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}.dot{animation:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <span class="logo"><span id="ikon"></span>Lönekollen</span>
+    <button type="button" class="ghost" id="setBtn" aria-expanded="false" aria-controls="settings">Inställningar</button>
+  </div>
+
+  <section class="card set" id="settings" hidden aria-label="Inställningar">
+    <h3>Bor i</h3>
+    <div class="seg" id="kommun"></div>
+    <label class="sw" for="kyrka">Medlem i Svenska kyrkan<input type="checkbox" id="kyrka"><span></span></label>
+    <p class="note" id="forsNote"></p>
+
+    <h3>Jobbar på</h3>
+    <div class="seg" id="jobb"></div>
+
+    <h3>Lön</h3>
+    <div class="seg" id="lonetyp"></div>
+    <div class="field"><input id="lon" inputmode="decimal" autocomplete="off" aria-label="Lön"><em id="lonUnit"></em></div>
+    <p class="note" id="jobbNote"></p>
+  </section>
+
+  <section class="hero" id="hero" aria-label="Pågående pass">
+    <div id="heroBody"></div>
+    <button type="button" class="go" id="cGo">Börja jobba</button>
+  </section>
+
+  <section class="card mcard" aria-label="Månadens lön">
+    <div class="month">
+      <button type="button" class="ghost" id="mPrev" aria-label="Föregående månad">‹</button>
+      <b id="mName"></b>
+      <button type="button" class="ghost" id="mNext" aria-label="Nästa månad">›</button>
+    </div>
+    <div class="lbl" id="mLbl">Totalt efter skatt</div>
+    <div class="big" id="rNet">0</div>
+    <div class="stats">
+      <div><span>Före skatt</span><b id="rGross"></b></div>
+      <div><span>Jobbat</span><b id="rHours"></b></div>
+      <div class="ob"><span>Varav OB</span><b id="rOb"></b></div>
+    </div>
+    <details class="more">
+      <summary>Uträkning</summary>
+      <dl id="rDetail"></dl>
+    </details>
+  </section>
+
+
+  <div class="head"><h2>Pass</h2><button type="button" class="ghost" id="addBtn">+ Lägg till</button></div>
+  <div class="list">
+    <form class="add" id="addForm" hidden>
+      <input type="date" id="aDate" required aria-label="Datum">
+      <input type="time" id="aFrom" required aria-label="Från">
+      <input type="time" id="aTo" required aria-label="Till">
+      <div class="btns"><button type="button" class="ghost" id="addCancel">Avbryt</button><button type="submit" class="pri">Spara</button></div>
+    </form>
+    <div id="passList"></div>
+  </div>
+
+  <footer>
+    <p>Skatt enligt Skatteverkets regler 2026, räknad som om månaden upprepas hela året. Skattetabellen kan skilja några tior.</p>
+    <p>ICA: OB enligt Handels detaljhandelsavtal. Polisen: OB D enligt avtal A357.900/2025. Tiderna för A–C är tolkade ur arbetstidsavtalet ASA/Polis och beloppen 200/120/90 kr är framräknade, så stäm av mot lönebeskedet.</p>
+    <p id="saveNote">Allt sparas i den här telefonen och finns kvar nästa gång du öppnar appen.</p>
+  </footer>
+</div>
+
+<script>
+/* ===== Data 2026 ===== */
+const PBB = 59200, IBB = 83400, SKIKT = 643000, BEGRAVNING = 0.292;
+const KOMMUNER = {
+  trelleborg:{namn:"Trelleborg", sats:31.58, fors:"Trelleborgs församling", kyrka:0.93},
+  svedala:{namn:"Svedala", sats:31.42, fors:"Svedala församling", kyrka:0.88}
+};
+const JOBB = {
+  ica:{namn:"ICA", obTyp:"pct", delare:166},
+  polis:{namn:"Polisen", obTyp:"kr", delare:165},
+  annat:{namn:"Annat", obTyp:"none", delare:165}
+};
+const OB = {
+  ica:{kvall:["OB vardag 18.15–20",50], sen:["OB vardag efter 20",70], lor:["OB lördag efter 12",100], son:["OB sön- och helgdag",100]},
+  polis:{a:["OB A",200], b:["OB B",120], c:["OB C",90], d:["OB D",60]},
+  annat:{}
+};
+
+/* ===== Skatt (SKV 433, 2026) ===== */
+function grundavdrag(ffi){
+  let ga;
+  if (ffi <= 0.99*PBB) ga = 0.423*PBB;
+  else if (ffi <= 2.72*PBB) ga = 0.423*PBB + 0.20*(ffi - 0.99*PBB);
+  else if (ffi <= 3.11*PBB) ga = 0.77*PBB;
+  else if (ffi <= 7.88*PBB) ga = 0.77*PBB - 0.10*(ffi - 3.11*PBB);
+  else ga = 0.293*PBB;
+  return Math.min(Math.ceil(ga/100)*100, ffi);
+}
+function jobbskatteavdrag(ai, ga, ki){
+  ai = Math.floor(ai/100)*100;
+  let b;
+  if (ai <= 0.91*PBB) b = ai - ga;
+  else if (ai <= 3.24*PBB) b = 0.91*PBB + 0.3874*(ai - 0.91*PBB) - ga;
+  else if (ai <= 8.08*PBB) b = 1.813*PBB + 0.251*(ai - 3.24*PBB) - ga;
+  else b = 3.027*PBB - ga;
+  return Math.max(0, Math.floor(b*ki/100));
+}
+function skatt(ar, kommunal, kyrka){
+  const ffi = Math.floor(Math.max(0, ar)/100)*100;
+  const ga = grundavdrag(ffi), bfi = Math.max(0, ffi - ga);
+  const kom = Math.floor(bfi*kommunal/100);
+  const begr = Math.floor(bfi*BEGRAVNING/100), kyr = Math.floor(bfi*kyrka/100);
+  const statlig = bfi - SKIKT >= 200 ? Math.floor((bfi - SKIKT)*0.20) : 0;
+  const penBas = ffi >= 0.423*PBB ? Math.min(ffi, 8.07*IBB) : 0;
+  const penRaw = penBas*0.07;
+  const pension = (penRaw % 100 === 50) ? penRaw - 50 : Math.round(penRaw/100)*100;
+  const penRed = Math.min(pension, kom + statlig);
+  const kvar = Math.max(0, kom - Math.max(0, penRed - statlig));
+  const jsa = Math.min(jobbskatteavdrag(ar, ga, kommunal), kvar);
+  const srf = Math.min(bfi > 40000 ? Math.min(1500, Math.floor((bfi - 40000)*0.0075)) : 0, kvar - jsa);
+  const ps = Math.min(Math.floor(bfi*0.01), Math.floor(0.01*1.42*IBB));
+  const pen = pension - penRed;
+  return {kom, begr, kyr, statlig, ps, pen, jsa, srf, total: kom + begr + kyr + statlig + ps + pen - jsa - srf};
+}
+
+/* ===== Helgdagar ===== */
+const dkey = d => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+const day = (y, m, d, h=0) => new Date(y, m, d, h);
+const HD = {};
+function hel(y){
+  if (HD[y]) return HD[y];
+  const a=y%19, b=Math.floor(y/100), c=y%100, d=Math.floor(b/4), e=b%4, f=Math.floor((b+8)/25), g=Math.floor((b-f+1)/3),
+        h=(19*a+b-d-g+15)%30, i=Math.floor(c/4), k=c%4, l=(32+2*e+2*i-h-k)%7, m=Math.floor((a+11*h+22*l)/451),
+        mo=Math.floor((h+l-7*m+114)/31)-1, da=((h+l-7*m+114)%31)+1;
+  const E = n => day(y, mo, da+n);
+  const lor = (mon, from) => { for (let x = 0; x < 7; x++){ const t = day(y, mon, from+x); if (t.getDay() === 6) return t; } };
+  const mids = lor(5, 20), allh = lor(9, 31), midsA = day(y, 5, mids.getDate()-1);
+  const r = {
+    langfre:E(-2), paskafton:E(-1), paskdag:E(0), annandag:E(1), kristi:E(39), pingstafton:E(48), pingst:E(49),
+    tretton:day(y,0,6), forstamaj:day(y,4,1), nationaldag:day(y,5,6), mids, midsA, allh,
+    julafton:day(y,11,24), nyarsafton:day(y,11,31)
+  };
+  /* Röda dagar (Handels) */
+  r.rod = new Set([day(y,0,1), r.tretton, r.langfre, r.paskdag, r.annandag, r.forstamaj, r.kristi, r.pingst, r.nationaldag, mids, allh, day(y,11,25), day(y,11,26)].map(dkey));
+  r.afton = new Set([midsA, r.julafton, r.nyarsafton].map(dkey));
+  /* Helgdagar enligt ASA/Polis (inkl. aftnar) */
+  r.asa = new Set([...r.rod, ...[r.paskafton, r.pingstafton, midsA, r.julafton, r.nyarsafton].map(dkey)]);
+  return HD[y] = r;
+}
+const vardag = d => d.getDay() >= 1 && d.getDay() <= 5 && !hel(d.getFullYear()).asa.has(dkey(d));
+/* Period från kl. 22 dagen före X till kl. 06 på första vardag efter X */
+function period(X){
+  const s = day(X.getFullYear(), X.getMonth(), X.getDate()-1, 22).getTime();
+  let n = day(X.getFullYear(), X.getMonth(), X.getDate()+1);
+  while (!vardag(n)) n = day(n.getFullYear(), n.getMonth(), n.getDate()+1);
+  return [s, day(n.getFullYear(), n.getMonth(), n.getDate(), 6).getTime()];
+}
+const PER = {};
+function polisPer(y){
+  if (PER[y]) return PER[y];
+  const A = [], C = [];
+  for (const yy of [y-1, y]){
+    const r = hel(yy);
+    [r.langfre, r.pingstafton, r.midsA, r.julafton, r.nyarsafton].forEach(x => A.push(period(x)));
+    [r.tretton, r.forstamaj, r.kristi, r.nationaldag].forEach(x => C.push(period(x)));
+    for (let t = day(yy,0,1); t.getFullYear() === yy; t = day(yy, t.getMonth(), t.getDate()+1)) if (t.getDay() === 6) C.push(period(t));
+  }
+  return PER[y] = {A, C};
+}
+const inP = (t, list) => list.some(([s,e]) => t >= s && t < e);
+
+/* ===== OB-klassning per minut ===== */
+function klass(jobb, t){
+  const d = new Date(t), dow = d.getDay(), min = d.getHours()*60 + d.getMinutes();
+  if (jobb === "ica"){
+    const r = hel(d.getFullYear()), k = dkey(d);
+    if (dow === 0 || r.rod.has(k)) return "son";
+    if (dow === 6 || r.afton.has(k)) return min >= 720 ? "lor" : null;
+    if (min >= 1095 && min < 1200) return "kvall";
+    return min >= 1200 ? "sen" : null;
+  }
+  if (jobb === "polis"){
+    const p = polisPer(d.getFullYear());
+    if (inP(t, p.A)) return "a";
+    if (min >= 180 && min < 360) return "b";
+    if (((dow === 5 || dow === 6) && min >= 1320) || ((dow === 6 || dow === 0) && min < 180)) return "b";
+    if (inP(t, p.C)) return "c";
+    if (min >= 1320 || min < 180) return "d";
+    if (dow >= 1 && dow <= 5 && min >= 1140) return "d";
+  }
+  return null;
+}
+function passData(p){
+  const end = p.end || Date.now(), ob = {};
+  for (let t = p.start; t < end; t += 60000){
+    const k = klass(p.jobb, t);
+    if (k) ob[k] = (ob[k] || 0) + Math.min(60000, end - t)/3600000;
+  }
+  return {h: Math.max(0, end - p.start)/3600000, ob};
+}
+
+/* ===== State ===== */
+const DEF = {kommun:"trelleborg", kyrka:false, jobb:"ica", passes:[], running:null,
+  profiler:{ica:{lonetyp:"tim", lon:165}, polis:{lonetyp:"man", lon:34000}, annat:{lonetyp:"tim", lon:150}}};
+let S;
+try { S = JSON.parse(localStorage.getItem("lonekollen-v1")); } catch(e) {}
+if (!S || !S.profiler) S = JSON.parse(JSON.stringify(DEF));
+if (!Array.isArray(S.passes)) S.passes = [];
+if (!S.running) S.running = null;
+if (!KOMMUNER[S.kommun]) S.kommun = "trelleborg";
+for (const j in DEF.profiler) if (!S.profiler[j]) S.profiler[j] = {...DEF.profiler[j]};
+function saveLocal(){ try { localStorage.setItem("lonekollen-v1", JSON.stringify(S)); } catch(e) {} }
+let remoteRef = null, writing = false, dirty = false, wTimer = null;
+function commit(){
+  S.savedAt = Date.now();
+  saveLocal();
+  if (!remoteRef) return;
+  clearTimeout(wTimer);
+  wTimer = setTimeout(pushRemote, 700);
+}
+async function pushRemote(){
+  if (!remoteRef) return;
+  if (writing){ dirty = true; return; }
+  writing = true;
+  try { await remoteRef.set(JSON.parse(JSON.stringify(S))); } catch(e) { if (e && e.code === "invalid_argument") remoteRef = null; }
+  writing = false;
+  if (dirty){ dirty = false; pushRemote(); }
+}
+/* Konto-sparning: samma data på alla enheter där du är inloggad */
+(async () => {
+  try {
+    if (typeof claude === "undefined" || !claude.use) return;
+    const [db, user] = await Promise.all([claude.use("db"), claude.use("user")]);
+    if (!db || !user) return;
+    const uid = await user.id();
+    if (!uid) return;
+    const ref = db.doc("data/users/" + uid + "/state");
+    let first = true;
+    ref.onSnapshot(snap => {
+      if (snap.metadata.hasPendingWrites) return;
+      const d = snap.exists ? snap.data() : null;
+      if (d && d.profiler && (d.savedAt || 0) > (S.savedAt || 0)){
+        S = JSON.parse(JSON.stringify(d));
+        if (!KOMMUNER[S.kommun]) S.kommun = "trelleborg";
+        if (!Array.isArray(S.passes)) S.passes = [];
+        saveLocal(); render();
+      }
+      if (first){ first = false; remoteRef = ref; $("saveNote").textContent = "Allt sparas på ditt konto och i telefonen, så det finns kvar nästa gång du öppnar appen."; if (!d || (S.savedAt || 0) > (d.savedAt || 0)) pushRemote(); }
+    }, () => {});
+  } catch(e) {}
+})();
+const P = () => S.profiler[S.jobb];
+let vm = (() => { const d = new Date(); return {y:d.getFullYear(), m:d.getMonth()}; })();
+
+/* ===== Hjälpare ===== */
+const $ = id => document.getElementById(id);
+const MAN = ["januari","februari","mars","april","maj","juni","juli","augusti","september","oktober","november","december"];
+const kr = n => Math.round(n).toLocaleString("sv-SE") + " kr";
+const num = s => { const v = parseFloat(String(s).replace(/\s/g,"").replace(",", ".")); return isFinite(v) ? v : 0; };
+const hm = h => { const t = Math.round(h*60), H = Math.floor(t/60), M = t%60; return M ? `${H} h ${M} min` : `${H} h`; };
+const klock = t => new Date(t).toLocaleTimeString("sv-SE", {hour:"2-digit", minute:"2-digit"});
+const datum = t => new Date(t).toLocaleDateString("sv-SE", {weekday:"short", day:"numeric", month:"short"});
+const tidStr = ms => { const s = Math.max(0, Math.floor(ms/1000)); return [Math.floor(s/3600), Math.floor(s/60)%60, s%60].map(n => String(n).padStart(2,"0")).join(":"); };
+const iManad = t => { const d = new Date(t); return d.getFullYear() === vm.y && d.getMonth() === vm.m; };
+const timlon = j => { const p = S.profiler[j]; return p.lonetyp === "tim" ? p.lon : p.lon/JOBB[j].delare; };
+const obKr = (j, k, h) => JOBB[j].obTyp === "pct" ? h*timlon(j)*OB[j][k][1]/100 : h*OB[j][k][1];
+const kyrkSats = () => S.kyrka ? KOMMUNER[S.kommun].kyrka : 0;
+function allaPass(){ const l = S.passes.slice(); if (S.running) l.push({...S.running, end:null, live:true}); return l; }
+
+function seg(el, items, active, pick){
+  el.innerHTML = "";
+  items.forEach(([id, label]) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.textContent = label; b.setAttribute("aria-pressed", String(id === active));
+    b.addEventListener("click", () => pick(id));
+    el.appendChild(b);
+  });
+}
+
+/* ===== Rendera ===== */
+function renderSettings(){
+  seg($("kommun"), Object.entries(KOMMUNER).map(([id,k]) => [id, k.namn]), S.kommun, id => { S.kommun = id; commit(); render(); });
+  $("kyrka").checked = S.kyrka;
+  const k = KOMMUNER[S.kommun];
+  $("forsNote").textContent = S.kyrka ? `${k.fors}: ${k.kyrka.toLocaleString("sv-SE")} % i kyrkoavgift.` : "";
+  $("forsNote").hidden = !S.kyrka;
+  seg($("jobb"), Object.entries(JOBB).map(([id,j]) => [id, j.namn]), S.jobb, id => { S.jobb = id; commit(); render(); });
+  seg($("lonetyp"), [["tim","Timlön"],["man","Månadslön"]], P().lonetyp, id => { P().lonetyp = id; commit(); render(); });
+  $("lon").value = String(P().lon).replace(".", ",");
+  $("lonUnit").textContent = P().lonetyp === "tim" ? "kr/h" : "kr/mån";
+  $("jobbNote").textContent = {
+    ica:"OB räknas automatiskt efter klockslag enligt Handels.",
+    polis:"OB A–D räknas automatiskt efter klockslag, storhelger och helger.",
+    annat:"Bara arbetade timmar räknas, ingen OB."
+  }[S.jobb];
+}
+
+const IKON = {
+  ica:'<svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#fff"/><path d="M8 13h16l-1.6 9.2a2 2 0 0 1-2 1.8h-8.8a2 2 0 0 1-2-1.8z" fill="var(--g1)"/><path d="M11.5 13l3-5M20.5 13l-3-5" stroke="var(--g1)" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M13 16.5v4M16 16.5v4M19 16.5v4" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></svg>',
+  polis:'<svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#fff"/><path d="M16 6l8 3v6.5c0 5-3.4 8.6-8 10.5-4.6-1.9-8-5.5-8-10.5V9z" fill="var(--g2)"/><path d="M16 11.2l1.4 2.9 3.1.4-2.3 2.2.6 3.1-2.8-1.5-2.8 1.5.6-3.1-2.3-2.2 3.1-.4z" fill="#f2b705"/></svg>',
+  annat:'<svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#fff"/><rect x="8" y="12" width="16" height="11" rx="2.5" fill="var(--g1)"/><path d="M13 12v-1.5A1.5 1.5 0 0 1 14.5 9h3a1.5 1.5 0 0 1 1.5 1.5V12" stroke="var(--g1)" stroke-width="2" fill="none"/></svg>'
+};
+function render(){
+  const t = S.running ? S.running.jobb : S.jobb, root = document.documentElement;
+  root.dataset.t = t; root.classList.toggle("on", !!S.running);
+  $("ikon").innerHTML = IKON[t];
+  const tc = getComputedStyle(root).getPropertyValue(S.running ? "--r1" : "--g1").trim();
+  document.querySelectorAll('meta[name="theme-color"]').forEach(m => m.setAttribute("content", tc));
+  renderSettings(); renderPass(); update();
+}
+
+function renderPass(){
+  const mn = MAN[vm.m];
+  $("mName").textContent = mn[0].toUpperCase() + mn.slice(1) + " " + vm.y;
+  const list = $("passList");
+  const pass = allaPass().filter(p => p.jobb === S.jobb && iManad(p.start)).sort((a,b) => b.start - a.start);
+  list.innerHTML = pass.length ? "" : `<p class="empty">Inga pass i ${mn} än.</p>`;
+  pass.forEach(p => {
+    const d = passData(p), obh = Object.values(d.ob).reduce((a,b) => a+b, 0);
+    const row = document.createElement("div");
+    row.className = "row";
+    const pk = passKr(p.jobb, d);
+    const krTxt = S.profiler[p.jobb].lonetyp === "tim" ? kr(pk.tot) : (pk.obk >= 1 ? "+" + kr(pk.obk) + " OB" : "");
+    row.innerHTML = `<i class="bar${p.live ? " live" : ""}"></i><div>${datum(p.start)}<small>${klock(p.start)}–${p.live ? "pågår" : klock(p.end)} · <span${p.live ? ' id="liveH"' : ""}>${hm(d.h)}</span>${obh >= 1/60 ? `, ${hm(obh)} OB` : ""}</small></div>
+      <div class="h"${p.live ? ' id="liveKr"' : ""}>${krTxt}</div>
+      ${p.live ? "<span></span>" : '<button type="button" class="x" aria-label="Ta bort passet">×</button>'}`;
+    const x = row.querySelector(".x");
+    if (x) x.addEventListener("click", () => {
+      if (!x.dataset.arm){ x.dataset.arm = "1"; x.textContent = "Ta bort"; return; }
+      S.passes = S.passes.filter(q => q.id !== p.id); commit(); render();
+    });
+    list.appendChild(row);
+  });
+  tick();
+}
+
+const LIVE = {base:0, jobb:null};
+const nettoAv = b => b - skatt(b*12, KOMMUNER[S.kommun].sats, kyrkSats()).total/12;
+function passKr(jobb, d){
+  const obk = Object.entries(d.ob).reduce((a,[k,h]) => a + obKr(jobb, k, h), 0);
+  return {obk, tot:(S.profiler[jobb].lonetyp === "tim" ? S.profiler[jobb].lon*d.h : 0) + obk};
+}
+/* Månadens bruttolön för passets jobb, utan det pågående passet */
+function liveBase(){
+  const r = S.running; if (!r) return;
+  const d0 = new Date(r.start), p = S.profiler[r.jobb];
+  let b = p.lonetyp === "tim" ? 0 : p.lon;
+  S.passes.forEach(q => {
+    const d = new Date(q.start);
+    if (q.jobb === r.jobb && d.getFullYear() === d0.getFullYear() && d.getMonth() === d0.getMonth()) b += passKr(r.jobb, passData(q)).tot;
+  });
+  LIVE.base = b; LIVE.jobb = r.jobb;
+}
+function update(){
+  const p = P(), j = S.jobb;
+  liveBase();
+  let h = 0; const ob = {};
+  allaPass().filter(q => q.jobb === j && iManad(q.start)).forEach(q => {
+    const d = passData(q); h += d.h;
+    for (const k in d.ob) ob[k] = (ob[k] || 0) + d.ob[k];
+  });
+  const grund = p.lonetyp === "tim" ? p.lon*h : p.lon;
+  const obRad = Object.keys(OB[j]).filter(k => ob[k] >= 1/60).map(k => [`${OB[j][k][0]} (${hm(ob[k])})`, obKr(j, k, ob[k])]);
+  const brutto = grund + obRad.reduce((a,r) => a + r[1], 0);
+  const t = skatt(brutto*12, KOMMUNER[S.kommun].sats, kyrkSats());
+  const sk = t.total/12, netto = brutto - sk;
+
+  $("rNet").innerHTML = `${Math.round(netto).toLocaleString("sv-SE")}<small>kr</small>`;
+  $("rGross").textContent = kr(brutto);
+  $("rHours").textContent = hm(h);
+  $("rOb").textContent = kr(brutto - grund);
+  const nu = new Date(), aktuell = nu.getFullYear() === vm.y && nu.getMonth() === vm.m;
+  $("mLbl").textContent = `Totalt i ${MAN[vm.m]} efter skatt` + (aktuell ? " hittills" : "");
+
+  const m = v => kr(v/12);
+  const rows = [[p.lonetyp === "tim" ? `Grundlön (${hm(h)})` : "Månadslön", kr(grund)], ...obRad.map(([n,v]) => [n, kr(v)])];
+  const tax = [[`Kommunalskatt ${KOMMUNER[S.kommun].namn}`, m(t.kom)], ["Begravningsavgift", m(t.begr)]];
+  if (S.kyrka) tax.push(["Kyrkoavgift", m(t.kyr)]);
+  if (t.statlig) tax.push(["Statlig skatt", m(t.statlig)]);
+  tax.push(["Public service-avgift", m(t.ps)]);
+  if (t.pen) tax.push(["Pensionsavgift", m(t.pen)]);
+  const minus = [["Jobbskatteavdrag", t.jsa], ["Skattereduktion", t.srf]].filter(r => r[1] > 0);
+  $("rDetail").innerHTML =
+    rows.map(([a,b]) => `<dt>${a}</dt><dd>${b}</dd>`).join("") +
+    `<dt class="s">Före skatt</dt><dd class="s">${kr(brutto)}</dd><div class="gap"></div>` +
+    tax.map(([a,b]) => `<dt>${a}</dt><dd>${b}</dd>`).join("") +
+    minus.map(([a,b]) => `<dt>${a}</dt><dd class="m">−${m(b)}</dd>`).join("") +
+    `<dt class="s">Skatt</dt><dd class="s">${kr(sk)}</dd>`;
+}
+
+function obNu(jobb){
+  const k = klass(jobb, Date.now());
+  if (!k) return null;
+  const [namn, v] = OB[jobb][k];
+  if (JOBB[jobb].obTyp === "pct"){
+    const tl = timlon(jobb), tot = kr(tl*(1 + v/100)) + "/h";
+    return v === 100 ? `Dubbel lön just nu – ${tot}` : `+${v} % på lönen just nu – ${tot}`;
+  }
+  return `${namn} just nu – +${v} kr/h`;
+}
+function tick(){
+  const r = S.running, hero = $("hero");
+  hero.classList.toggle("on", !!r);
+  $("cGo").textContent = r ? "Sluta jobba" : "Börja jobba";
+  if (!r){
+    const nu = obNu(S.jobb);
+    $("heroBody").innerHTML = `<div class="k">${JOBB[S.jobb].namn}</div>
+      <div class="idle">Redo för ett pass?</div>
+      <p class="hint">Tryck när du börjar. Tiden räknas även när telefonen är låst eller appen stängd.</p>
+      ${nu ? `<p style="margin:-6px 0 18px"><span class="chip">${nu}</span></p>` : ""}`;
+    return;
+  }
+  if (LIVE.jobb !== r.jobb) liveBase();
+  const d = passData(r), p = S.profiler[r.jobb], pk = passKr(r.jobb, d);
+  const netto = nettoAv(LIVE.base + pk.tot) - nettoAv(LIVE.base);
+  const nu = obNu(r.jobb);
+  const chip = nu ? `<span class="chip">${nu}</span>` : (JOBB[r.jobb].obTyp === "none" ? "" : `<span class="chip">Ingen OB just nu</span>`);
+  const tim = p.lonetyp === "tim";
+  $("heroBody").innerHTML = `<div class="k"><span class="dot"></span>${tim ? "Intjänat det här passet" : "OB det här passet"}</div>
+    <div class="amt">${Math.round(tim ? pk.tot : pk.obk).toLocaleString("sv-SE")}<small>kr</small></div>
+    <div class="net2">≈ ${kr(netto)} efter skatt</div>
+    <div class="row2"><div><div class="tid">${tidStr(Date.now() - r.start)}</div><div class="since">${JOBB[r.jobb].namn} sedan ${klock(r.start)}</div></div>${chip}</div>`;
+  const lh = $("liveH"); if (lh) lh.textContent = hm(d.h);
+  const lk = $("liveKr"); if (lk) lk.textContent = tim ? kr(pk.tot) : (pk.obk >= 1 ? "+" + kr(pk.obk) + " OB" : "");
+}
+
+/* ===== Händelser ===== */
+$("setBtn").addEventListener("click", () => {
+  const s = $("settings"); s.hidden = !s.hidden;
+  $("setBtn").setAttribute("aria-expanded", String(!s.hidden));
+  $("setBtn").textContent = s.hidden ? "Inställningar" : "Klar";
+});
+$("kyrka").addEventListener("change", e => { S.kyrka = e.target.checked; commit(); render(); });
+$("lon").addEventListener("input", e => { P().lon = num(e.target.value); commit(); update(); tick(); });
+$("cGo").addEventListener("click", () => {
+  const now = Date.now();
+  if (S.running){
+    if (now - S.running.start >= 60000) S.passes.push({id:now, jobb:S.running.jobb, start:S.running.start, end:now});
+    S.running = null;
+  } else {
+    S.running = {jobb:S.jobb, start:now};
+    const d = new Date(); vm = {y:d.getFullYear(), m:d.getMonth()};
+  }
+  commit(); render();
+});
+$("mPrev").addEventListener("click", () => { vm = vm.m === 0 ? {y:vm.y-1, m:11} : {y:vm.y, m:vm.m-1}; render(); });
+$("mNext").addEventListener("click", () => { vm = vm.m === 11 ? {y:vm.y+1, m:0} : {y:vm.y, m:vm.m+1}; render(); });
+$("addBtn").addEventListener("click", () => {
+  $("addForm").hidden = false;
+  if (!$("aDate").value){ const d = new Date(); $("aDate").value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; }
+  $("aFrom").focus();
+});
+$("addCancel").addEventListener("click", () => { $("addForm").hidden = true; });
+$("addForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const [y, mo, da] = $("aDate").value.split("-").map(Number);
+  const [h1, m1] = $("aFrom").value.split(":").map(Number), [h2, m2] = $("aTo").value.split(":").map(Number);
+  if (!y || isNaN(h1) || isNaN(h2)) return;
+  const start = new Date(y, mo-1, da, h1, m1).getTime();
+  let end = new Date(y, mo-1, da, h2, m2).getTime();
+  if (end <= start) end = new Date(y, mo-1, da+1, h2, m2).getTime();
+  S.passes.push({id:Date.now(), jobb:S.jobb, start, end});
+  vm = {y, m:mo-1};
+  $("addForm").hidden = true; $("aFrom").value = ""; $("aTo").value = "";
+  commit(); render();
+});
+
+render();
+let sek = 0;
+setInterval(() => { if (!S.running) return; tick(); if (++sek % 30 === 0) update(); }, 1000);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) render(); else saveLocal(); });
+window.addEventListener("pageshow", () => render());
+window.addEventListener("focus", () => tick());
+</script>
+</body>
+</html>
